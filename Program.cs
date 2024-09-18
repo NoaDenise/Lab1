@@ -16,7 +16,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 
-
+ 
 
 // Lägg till Swagger/OpenAPI för dokumentation (valfritt)
 builder.Services.AddEndpointsApiExplorer();
