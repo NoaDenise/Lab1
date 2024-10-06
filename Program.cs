@@ -16,7 +16,17 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 
- 
+// Lägg till CORS-policy för att tillåta anrop från React-applikationen
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173") // URL för din React-applikation
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 
 // Lägg till Swagger/OpenAPI för dokumentation (valfritt)
 builder.Services.AddEndpointsApiExplorer();
@@ -32,6 +42,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Aktivera CORS-policy för att tillåta anrop från React-frontend
+app.UseCors("AllowReactApp");
 
 app.UseAuthorization();
 

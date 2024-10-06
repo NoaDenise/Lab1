@@ -19,12 +19,10 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Hämtar alla kunder från databasen
                 return await _context.Customers.ToListAsync();
             }
             catch (Exception ex)
             {
-                // Fångar eventuella fel och returnerar en anpassad felbeskrivning
                 throw new Exception("Ett fel uppstod när kunderna hämtades.", ex);
             }
         }
@@ -33,7 +31,6 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Hämtar en kund baserat på ID
                 return await _context.Customers.FindAsync(id);
             }
             catch (Exception ex)
@@ -46,9 +43,8 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Lägger till en ny kund i databasen
                 _context.Customers.Add(customer);
-                await _context.SaveChangesAsync(); // Sparar ändringar asynkront
+                await _context.SaveChangesAsync();
                 return customer;
             }
             catch (Exception ex)
@@ -61,7 +57,6 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Uppdaterar en befintlig kund
                 var existingCustomer = await _context.Customers.FindAsync(customer.CustomerId);
                 if (existingCustomer != null)
                 {
@@ -84,7 +79,6 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Tar bort en kund baserat på ID
                 var customer = await _context.Customers.FindAsync(id);
                 if (customer != null)
                 {
@@ -95,6 +89,19 @@ namespace Lab1.Data.Repositories
             catch (Exception ex)
             {
                 throw new Exception($"Ett fel uppstod när kunden med ID {id} skulle raderas.", ex);
+            }
+        }
+
+        // Implementera GetCustomerByEmailAsync-metoden
+        public async Task<Customer> GetCustomerByEmailAsync(string email)
+        {
+            try
+            {
+                return await _context.Customers.FirstOrDefaultAsync(c => c.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ett fel uppstod när kunden skulle hämtas via e-post.", ex);
             }
         }
     }

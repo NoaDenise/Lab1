@@ -2,6 +2,7 @@
 using Lab1.Models;
 using Lab1.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,12 +60,12 @@ namespace Lab1.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TableDTO>> AddTable(TableDTO tableDTO)
+        public async Task<ActionResult<TableDTO>> AddTable(CreateTableDTO tableDTO)
         {
             // Validering av bordets nummer och antal sittplatser
             if (tableDTO.TableNumber <= 0 || tableDTO.NumberOfSeats <= 0)
             {
-                return BadRequest("Bordsnummer och antal sittplatser måste vara större än noll.");  // Returnerar 400 om indata är ogiltigt
+                return BadRequest("Bordsnummer och antal sittplatser måste vara större än noll.");
             }
 
             var table = new Table
@@ -73,17 +74,27 @@ namespace Lab1.Controllers
                 Seats = tableDTO.NumberOfSeats
             };
 
-            var addedTable = await _tableRepository.AddTableAsync(table);
-
-            var resultDTO = new TableDTO
+            try
             {
-                TableId = addedTable.TableId,
-                TableNumber = addedTable.TableNumber,
-                NumberOfSeats = addedTable.Seats
-            };
+                var addedTable = await _tableRepository.AddTableAsync(table);
 
-            return CreatedAtAction(nameof(GetTableById), new { tableId = addedTable.TableId }, resultDTO);
+                var resultDTO = new TableDTO
+                {
+                    TableId = addedTable.TableId, // TableId genereras automatiskt
+                    TableNumber = addedTable.TableNumber,
+                    NumberOfSeats = addedTable.Seats
+                };
+
+                return CreatedAtAction(nameof(GetTableById), new { tableId = addedTable.TableId }, resultDTO);
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("Bordsnumret är redan upptaget. Ange ett annat nummer.");
+            }
         }
+
+
+
 
         [HttpPut("{tableId}")]
         public async Task<IActionResult> UpdateTable(int tableId, TableDTO tableDTO)

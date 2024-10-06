@@ -35,7 +35,8 @@ namespace Lab1.Controllers
                 MenuItemId = m.MenuItemId,
                 Name = m.Name,
                 Price = m.Price,
-                IsAvailable = m.IsAvailable
+                IsAvailable = m.IsAvailable,
+                Description = m.Description  // Lägg till Description här
             });
 
             return Ok(menuItemDTOs);
@@ -56,7 +57,8 @@ namespace Lab1.Controllers
                 MenuItemId = menuItem.MenuItemId,
                 Name = menuItem.Name,
                 Price = menuItem.Price,
-                IsAvailable = menuItem.IsAvailable
+                IsAvailable = menuItem.IsAvailable,
+                Description = menuItem.Description  // Lägg till Description här
             };
 
             return Ok(menuItemDTO);
@@ -75,7 +77,8 @@ namespace Lab1.Controllers
             {
                 Name = createMenuItemDTO.Name,
                 Price = createMenuItemDTO.Price,
-                IsAvailable = createMenuItemDTO.IsAvailable
+                IsAvailable = createMenuItemDTO.IsAvailable,
+                Description = createMenuItemDTO.Description  // Lägg till Description här
             };
 
             var addedMenuItem = await _menuItemRepository.AddMenuItemAsync(menuItem);
@@ -85,7 +88,8 @@ namespace Lab1.Controllers
                 MenuItemId = addedMenuItem.MenuItemId,
                 Name = addedMenuItem.Name,
                 Price = addedMenuItem.Price,
-                IsAvailable = addedMenuItem.IsAvailable
+                IsAvailable = addedMenuItem.IsAvailable,
+                Description = addedMenuItem.Description  // Lägg till Description här
             };
 
             return CreatedAtAction(nameof(GetMenuItemById), new { menuItemId = addedMenuItem.MenuItemId }, addedMenuItemDTO);
@@ -109,6 +113,7 @@ namespace Lab1.Controllers
             existingMenuItem.Name = updateMenuItemDTO.Name;
             existingMenuItem.Price = updateMenuItemDTO.Price;
             existingMenuItem.IsAvailable = updateMenuItemDTO.IsAvailable;
+            existingMenuItem.Description = updateMenuItemDTO.Description;  // Lägg till Description här
 
             var updatedMenuItem = await _menuItemRepository.UpdateMenuItemAsync(existingMenuItem);
             if (updatedMenuItem == null)

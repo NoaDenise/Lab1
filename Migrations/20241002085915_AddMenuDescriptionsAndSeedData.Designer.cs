@@ -4,6 +4,7 @@ using Lab1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab1.Migrations
 {
     [DbContext(typeof(Lab1DbContext))]
-    partial class Lab1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20241002085915_AddMenuDescriptionsAndSeedData")]
+    partial class AddMenuDescriptionsAndSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,34 +43,12 @@ namespace Lab1.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
 
                     b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = 1,
-                            Email = "anna.svensson@example.com",
-                            Name = "Anna Svensson",
-                            Phone = "0701234567"
-                        },
-                        new
-                        {
-                            CustomerId = 2,
-                            Email = "erik.johansson@example.com",
-                            Name = "Erik Johansson",
-                            Phone = "0707654321"
-                        },
-                        new
-                        {
-                            CustomerId = 3,
-                            Email = "maria.lind@example.com",
-                            Name = "Maria Lind",
-                            Phone = "0709988776"
-                        });
                 });
 
             modelBuilder.Entity("Lab1.Models.MenuItem", b =>
@@ -158,11 +139,7 @@ namespace Lab1.Migrations
                     b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("ReservationTime")
-                        .HasColumnType("time");
-
-                    b.Property<int?>("TableId")
-                        .IsRequired()
+                    b.Property<int>("TableId")
                         .HasColumnType("int");
 
                     b.HasKey("ReservationId");
@@ -172,35 +149,6 @@ namespace Lab1.Migrations
                     b.HasIndex("TableId");
 
                     b.ToTable("Reservations");
-
-                    b.HasData(
-                        new
-                        {
-                            ReservationId = 1,
-                            CustomerId = 1,
-                            NumberOfGuests = 4,
-                            ReservationDate = new DateTime(2024, 10, 6, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(8924),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
-                            TableId = 1
-                        },
-                        new
-                        {
-                            ReservationId = 2,
-                            CustomerId = 2,
-                            NumberOfGuests = 2,
-                            ReservationDate = new DateTime(2024, 10, 7, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(9004),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
-                            TableId = 2
-                        },
-                        new
-                        {
-                            ReservationId = 3,
-                            CustomerId = 3,
-                            NumberOfGuests = 3,
-                            ReservationDate = new DateTime(2024, 10, 8, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(9019),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
-                            TableId = 3
-                        });
                 });
 
             modelBuilder.Entity("Lab1.Models.Table", b =>
@@ -219,30 +167,7 @@ namespace Lab1.Migrations
 
                     b.HasKey("TableId");
 
-                    b.HasIndex("TableNumber")
-                        .IsUnique();
-
                     b.ToTable("Tables");
-
-                    b.HasData(
-                        new
-                        {
-                            TableId = 1,
-                            Seats = 4,
-                            TableNumber = 1
-                        },
-                        new
-                        {
-                            TableId = 2,
-                            Seats = 2,
-                            TableNumber = 2
-                        },
-                        new
-                        {
-                            TableId = 3,
-                            Seats = 3,
-                            TableNumber = 3
-                        });
                 });
 
             modelBuilder.Entity("Lab1.Models.Reservation", b =>

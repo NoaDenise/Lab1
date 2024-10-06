@@ -13,10 +13,12 @@ namespace Lab1.Controllers
     public class ReservationController : ControllerBase
     {
         private readonly IReservationRepository _reservationRepository;
+        private readonly ICustomerRepository _customerRepository; // Lägg till denna rad
 
-        public ReservationController(IReservationRepository reservationRepository)
+        public ReservationController(IReservationRepository reservationRepository, ICustomerRepository customerRepository) // Ändra konstruktorn
         {
             _reservationRepository = reservationRepository;
+            _customerRepository = customerRepository;
         }
 
         // GET: api/Reservation
@@ -34,7 +36,7 @@ namespace Lab1.Controllers
             {
                 ReservationId = r.ReservationId,
                 CustomerId = r.CustomerId,
-                TableId = r.TableId,
+                TableId = r.TableId ?? 0,
                 ReservationDate = r.ReservationDate,
                 NumberOfGuests = r.NumberOfGuests
             });
@@ -56,7 +58,7 @@ namespace Lab1.Controllers
             {
                 ReservationId = reservation.ReservationId,
                 CustomerId = reservation.CustomerId,
-                TableId = reservation.TableId,
+                TableId = reservation.TableId ?? 0,
                 ReservationDate = reservation.ReservationDate,
                 NumberOfGuests = reservation.NumberOfGuests
             };
@@ -68,18 +70,42 @@ namespace Lab1.Controllers
         [HttpPost]
         public async Task<ActionResult<ReservationDTO>> AddReservation(ReservationCreateDTO reservationCreateDTO)
         {
-            // Enkel validering av input
-            if (reservationCreateDTO.CustomerId <= 0 || reservationCreateDTO.TableId <= 0 || reservationCreateDTO.NumberOfGuests <= 0)
+            if (reservationCreateDTO.ReservationTime.Minutes != 0)
             {
-                return BadRequest("Ogiltiga värden. Kund-ID, bords-ID och antal gäster måste vara större än noll."); // Returnerar 400 vid felaktiga värden
+                return BadRequest("Endast hela timmar kan bokas."); // Returnerar fel om bokningen inte är på en hel timme
             }
 
+            // Kontrollera om kunden redan finns baserat på e-post
+            var customer = await _customerRepository.GetCustomerByEmailAsync(reservationCreateDTO.Email);
+
+            // Om kunden inte finns, skapa en ny kund
+            if (customer == null)
+            {
+                customer = new Customer
+                {
+                    Name = reservationCreateDTO.Name,
+                    Email = reservationCreateDTO.Email,
+                    Phone = "Not Provided"  // Eller lämna som null
+                };
+                customer = await _customerRepository.AddCustomerAsync(customer);
+            }
+
+            // Hitta ett ledigt bord baserat på datum, tid och antal gäster
+            var availableTable = await _reservationRepository.FindAvailableTableAsync(reservationCreateDTO.ReservationDate, reservationCreateDTO.ReservationTime, reservationCreateDTO.NumberOfGuests);
+
+            if (availableTable == null)
+            {
+                return BadRequest("Inga tillgängliga bord för valt datum och tid.");
+            }
+
+            // Skapa bokningen med kundens ID och det lediga bordets ID
             var reservation = new Reservation
             {
-                CustomerId = reservationCreateDTO.CustomerId,
-                TableId = reservationCreateDTO.TableId,
+                CustomerId = customer.CustomerId,
                 ReservationDate = reservationCreateDTO.ReservationDate,
-                NumberOfGuests = reservationCreateDTO.NumberOfGuests
+                ReservationTime = reservationCreateDTO.ReservationTime, // Lägg till tid för bokningen
+                NumberOfGuests = reservationCreateDTO.NumberOfGuests,
+                TableId = availableTable.TableId // Tilldela bordets ID här
             };
 
             var addedReservation = await _reservationRepository.AddReservationAsync(reservation);
@@ -88,13 +114,15 @@ namespace Lab1.Controllers
             {
                 ReservationId = addedReservation.ReservationId,
                 CustomerId = addedReservation.CustomerId,
-                TableId = addedReservation.TableId,
+                TableId = addedReservation.TableId ?? 0,
                 ReservationDate = addedReservation.ReservationDate,
+                ReservationTime = addedReservation.ReservationTime, // Lägg till tid för bokningen
                 NumberOfGuests = addedReservation.NumberOfGuests
             };
 
             return CreatedAtAction(nameof(GetReservationById), new { reservationId = addedReservation.ReservationId }, reservationDTO);
         }
+
 
         // PUT: api/Reservation/{reservationId}
         [HttpPut("{reservationId}")]
@@ -134,5 +162,31 @@ namespace Lab1.Controllers
             await _reservationRepository.DeleteReservationAsync(reservationId);
             return NoContent(); // Returnerar 204 efter borttagning
         }
+
+        // DELETE: api/Reservation/deleteByEmail/{email}
+        [HttpDelete("deleteByEmail/{email}")]
+        public async Task<IActionResult> DeleteReservationByEmail(string email)
+        {
+            // Hämta kund baserat på e-post
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+
+            if (customer == null)
+            {
+                return NotFound($"Ingen kund med e-postadressen {email} hittades.");
+            }
+
+            // Hämta bokning baserat på kundens ID
+            var reservation = await _reservationRepository.GetReservationByCustomerIdAsync(customer.CustomerId);
+
+            if (reservation == null)
+            {
+                return NotFound($"Ingen bokning hittades för kunden med e-post {email}.");
+            }
+
+            // Ta bort bokningen
+            await _reservationRepository.DeleteReservationAsync(reservation.ReservationId);
+            return NoContent();
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using Lab1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab1.Migrations
 {
     [DbContext(typeof(Lab1DbContext))]
-    partial class Lab1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004191738_MakeTableIdNullableInReservations")]
+    partial class MakeTableIdNullableInReservations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,6 +43,7 @@ namespace Lab1.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
@@ -158,9 +162,6 @@ namespace Lab1.Migrations
                     b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("ReservationTime")
-                        .HasColumnType("time");
-
                     b.Property<int?>("TableId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -179,8 +180,7 @@ namespace Lab1.Migrations
                             ReservationId = 1,
                             CustomerId = 1,
                             NumberOfGuests = 4,
-                            ReservationDate = new DateTime(2024, 10, 6, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(8924),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
+                            ReservationDate = new DateTime(2024, 10, 5, 21, 17, 38, 12, DateTimeKind.Local).AddTicks(9160),
                             TableId = 1
                         },
                         new
@@ -188,8 +188,7 @@ namespace Lab1.Migrations
                             ReservationId = 2,
                             CustomerId = 2,
                             NumberOfGuests = 2,
-                            ReservationDate = new DateTime(2024, 10, 7, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(9004),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
+                            ReservationDate = new DateTime(2024, 10, 6, 21, 17, 38, 12, DateTimeKind.Local).AddTicks(9224),
                             TableId = 2
                         },
                         new
@@ -197,8 +196,7 @@ namespace Lab1.Migrations
                             ReservationId = 3,
                             CustomerId = 3,
                             NumberOfGuests = 3,
-                            ReservationDate = new DateTime(2024, 10, 8, 19, 33, 7, 296, DateTimeKind.Local).AddTicks(9019),
-                            ReservationTime = new TimeSpan(0, 0, 0, 0, 0),
+                            ReservationDate = new DateTime(2024, 10, 7, 21, 17, 38, 12, DateTimeKind.Local).AddTicks(9228),
                             TableId = 3
                         });
                 });

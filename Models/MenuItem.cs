@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Lab1.Models
 {
@@ -18,5 +18,8 @@ namespace Lab1.Models
 
         [Required]
         public bool IsAvailable { get; set; }
+
+        [MaxLength(255)]
+        public string Description { get; set; }
     }
 }

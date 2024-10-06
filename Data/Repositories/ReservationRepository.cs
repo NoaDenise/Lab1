@@ -3,6 +3,8 @@ using Lab1.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
+using System.Linq; // Lägg till detta för att använda LINQ
 
 namespace Lab1.Data.Repositories
 {
@@ -19,17 +21,22 @@ namespace Lab1.Data.Repositories
         {
             try
             {
-                // Hämtar alla reservationer från databasen
-                return await _context.Reservations
+                var reservations = await _context.Reservations
                     .Include(r => r.Customer)
                     .Include(r => r.Table)
                     .ToListAsync();
+
+                // Lägg till denna rad för att logga antalet hämtade reservationer
+                Console.WriteLine($"Antal reservationer hämtade: {reservations.Count}");
+
+                return reservations;
             }
             catch (Exception ex)
             {
                 throw new Exception("Ett fel uppstod när reservationerna hämtades.", ex);
             }
         }
+
 
         public async Task<Reservation> GetReservationByIdAsync(int id)
         {
@@ -103,5 +110,41 @@ namespace Lab1.Data.Repositories
                 throw new Exception($"Ett fel uppstod när reservationen med ID {id} skulle raderas.", ex);
             }
         }
+
+        // Här implementerar vi den saknade metoden
+        public async Task<Table> FindAvailableTableAsync(DateTime reservationDate, TimeSpan reservationTime, int numberOfGuests)
+        {
+            try
+            {
+                // Hitta ett bord som har tillräckligt många platser och som inte är bokat vid samma datum och tid
+                var availableTable = await _context.Tables
+                    .Where(t => t.Seats >= numberOfGuests &&
+                                !_context.Reservations
+                                    .Any(r => r.TableId == t.TableId &&
+                                              r.ReservationDate.Date == reservationDate.Date && // Kontrollera datum
+                                              r.ReservationTime == reservationTime)) // Kontrollera tid
+                    .FirstOrDefaultAsync();
+
+                return availableTable;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ett fel uppstod när ett ledigt bord skulle hittas.", ex);
+            }
+        }
+
+        public async Task<Reservation> GetReservationByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _context.Reservations
+                    .FirstOrDefaultAsync(r => r.CustomerId == customerId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ett fel uppstod när bokningen för kunden med ID {customerId} skulle hämtas.", ex);
+            }
+        }
+
     }
 }

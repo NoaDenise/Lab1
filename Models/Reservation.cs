@@ -12,7 +12,7 @@ namespace Lab1.Models
         public int CustomerId { get; set; }
 
         [Required]
-        public int TableId { get; set; }
+        public int? TableId { get; set; }
 
         [Required]
         public DateTime ReservationDate { get; set; }
@@ -25,5 +25,7 @@ namespace Lab1.Models
 
         [ForeignKey("TableId")]
         public Table Table { get; set; }
+        [Required]
+        public TimeSpan ReservationTime { get; set; }
     }
 }

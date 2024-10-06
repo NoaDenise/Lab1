@@ -11,5 +11,6 @@ namespace Lab1.Data.Repositories.IRepositories
         Task<Customer> AddCustomerAsync(Customer customer);
         Task<Customer> UpdateCustomerAsync(Customer customer);
         Task DeleteCustomerAsync(int id);
+        Task<Customer> GetCustomerByEmailAsync(string email); // Ny metod för att hämta kund via e-post
     }
 }
